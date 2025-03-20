@@ -1,7 +1,11 @@
+import { Exclude } from "class-transformer";
+
 export class ResponseUserDto {
 
     email: string;
     name: string
+    
+    @Exclude()
     password: string;
     profilePicture?: string;
     phoneNumber?: string;

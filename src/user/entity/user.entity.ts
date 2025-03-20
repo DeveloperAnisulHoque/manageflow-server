@@ -10,7 +10,7 @@ export class User extends BaseEntity {
     @Column({ type: "varchar", length: 100 })
     name: string
 
-    @Column({ type: "varchar", length: 20 })
+    @Column({ type: "varchar", length: 200 })
     password: string;
 
     @Column({ name: "profile_picture", type: "varchar", nullable: true })

@@ -12,9 +12,11 @@ import databaseConfig from 'src/common/config/database.config';
                type:"postgres",
                url:configService.get<string>("database.url"),
                entities:[__dirname+"/../**/*.entity{.ts,.js}"],
-               migrations:[__dirname+"/../migrations/*{.ts,.js}"],
-               migrationsRun:true,
-               synchronize:configService.get<boolean>("database.sync"),
+               migrations: [__dirname + '/../migrations/*.{ts,js}'],
+               synchronize: process.env.NODE_ENV !== 'production', // Disable in production
+               migrationsRun: process.env.NODE_ENV !== 'production', // Run only in dev
+               autoLoadEntities: true, // Ensures dynamic loading
+ 
        })
      })
     ],
