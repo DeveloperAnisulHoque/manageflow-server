@@ -7,6 +7,7 @@ import { hashPassword } from "@common/util/crypto";
 import { ResponseUserDto } from "./dto/response-user.dto";
 import { plainToInstance } from "class-transformer";
 import { UpdateUserDto } from "./dto/update-user.dto";
+import { MESSAGES } from "@common/messages";
 
 
 @Injectable()
@@ -42,7 +43,7 @@ export class UserService {
     async updateUser(userId: number, updateUserDto: UpdateUserDto): Promise<ResponseUserDto> {
         const existingUser = await this.findUserById(userId)
         if (!existingUser) {
-            throw new BadRequestException(`User doesn't exist for the given id ${userId}`)
+            throw new BadRequestException(MESSAGES.USER_MESSAGES.NOT_FOUND(userId))
         }
         Object.assign(existingUser, updateUserDto)
 
@@ -60,10 +61,10 @@ export class UserService {
     async removeUser(userId: number) {
         const result =await this.userRepository.delete(userId)
         if(!result.affected){
-            throw new BadRequestException(`User doesn't exist!`)
+            throw new BadRequestException(MESSAGES.USER_MESSAGES.NOT_FOUND)
         }
         return {
-            message:"User deleted successfully !"
+            message:MESSAGES.USER_MESSAGES.DELETE_SUCCESS
         }
 
     }
@@ -72,7 +73,7 @@ export class UserService {
         const existingUser = await this.findUserByEmail(createUserDto.email)
 
         if (existingUser) {
-            throw new BadRequestException("User already exists")
+            throw new BadRequestException(MESSAGES.USER_MESSAGES.ALREADY_EXISTS)
         }
 
         const hashedPassword = await hashPassword(createUserDto.password)
