@@ -1,6 +1,7 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Request, UseGuards } from "@nestjs/common";
 import { CreateUserDto } from "@user/dto/create-user.dto";
 import { AuthService } from "./auth.service";
+import { AuthGuard } from "@nestjs/passport";
  
 
 @Controller("auth")
@@ -18,7 +19,13 @@ async register(@Body() createUserDto:CreateUserDto){
 }
 
 
-async login(){}
+@Post("login")
+@HttpCode(HttpStatus.OK)
+@UseGuards(AuthGuard("local"))
+async login(@Request() req:any){
+   return this.authService.login(req.user)
+}
+
 async getProfile(){}
 async updateProfile(){}
 
