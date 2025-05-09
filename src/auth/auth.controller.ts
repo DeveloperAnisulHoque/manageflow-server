@@ -13,6 +13,7 @@ constructor(
 
 
 @Post("register")
+@HttpCode(HttpStatus.OK)
 @HttpCode(HttpStatus.CREATED)
 async register(@Body() createUserDto:CreateUserDto){
     return this.authService.register(createUserDto)
