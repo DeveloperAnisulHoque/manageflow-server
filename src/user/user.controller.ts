@@ -1,9 +1,12 @@
 import { ValidIdPipe } from 'src/common/pipe/valid-id-pipe';
 import { UserService } from './user.service';
-import { Body, Controller, Delete, Get, Param, Patch } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, UseGuards } from "@nestjs/common";
 import { UpdateUserDto } from './dto/update-user.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { Private } from '@common/decorator/private.decorator';
 
 @Controller("users")
+@Private()
 export class UserController{
     constructor(
         private readonly userService:UserService
