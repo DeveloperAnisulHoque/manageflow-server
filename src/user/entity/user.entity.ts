@@ -1,5 +1,6 @@
+import { Role } from "@role/entity/role.entity";
 import { BaseEntity } from "src/common/entity/base.entity";
-import { Entity, Column } from "typeorm";
+import { Entity, Column, ManyToMany, JoinTable } from "typeorm";
 
 @Entity({ name: "users" })
 export class User extends BaseEntity {
@@ -39,6 +40,13 @@ export class User extends BaseEntity {
 
     @Column({ name:"date_of_birth",type: "date", nullable: true })
     dateOfBirth?: Date;
-
+    
+    @ManyToMany(()=>Role,role=>role.users)
+    @JoinTable({
+        name:"user_roles",
+        joinColumn:{name:"user_id",referencedColumnName:"id"},
+        inverseJoinColumn:{name:"role_id",referencedColumnName:"id"}
+    })
+    roles:Role[]
 
 }
