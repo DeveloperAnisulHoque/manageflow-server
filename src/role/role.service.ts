@@ -18,12 +18,25 @@ export class RoleService {
     }
 
     async createRoles(createRoleDto: CreateRoleDto) {
+
+        const existingRole = await this.roleRepository.findOne({ where: { name: createRoleDto.name } });
+        if (existingRole) {
+            throw new BadRequestException(`Role with name ${createRoleDto.name} already exist!`)
+        }
+
         const newRole = this.roleRepository.create(createRoleDto)
         return this.roleRepository.save(newRole)
     }
 
     async updateRoles(roleId: number, updateRoleDto: UpdateRoleDto) {
-        const existingRole = await this.roleRepository.findOneByOrFail({ id: roleId });
+
+        const isRoleExists = await this.roleRepository.exists({ where: { id: roleId } })
+
+        if (!isRoleExists) {
+            throw new BadRequestException(`Role with id ${roleId} does not exist!`)
+        }
+
+        const existingRole = await this.roleRepository.findOne({ where: { id: roleId } });
         if (!existingRole) {
             throw new BadRequestException()
         }

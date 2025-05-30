@@ -1,9 +1,9 @@
-import { IsNotEmpty, IsString, MinLength } from "class-validator";
+import { IsNotEmpty, IsString, MaxLength, MinLength } from "class-validator";
 
 export class CreateRoleDto{
     @IsNotEmpty()
     @IsString()
     @MinLength(3)
-    @MinLength(15)
+    @MaxLength(15)
     name:string
 }
