@@ -8,12 +8,15 @@ import { ResponseUserDto } from "./dto/response-user.dto";
 import { plainToInstance } from "class-transformer";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { MESSAGES } from "@common/messages";
+import { RoleService } from "@role/role.service";
 
 
 @Injectable()
 export class UserService {
-    constructor(@InjectRepository(User) private readonly userRepository: Repository<User>) {
-
+    constructor(@InjectRepository(User) private readonly userRepository: Repository<User>,
+  private readonly roleService:RoleService
+) {
+     
     }
     async findUserByEmail(email: string) {
         return this.userRepository.findOne({
@@ -35,7 +38,12 @@ export class UserService {
         return plainToInstance(ResponseUserDto, user)
     }
     async findUsers(): Promise<ResponseUserDto[]> {
-        const users = await this.userRepository.find()
+        const users = await this.userRepository.find({
+            relations:["roles"],
+            select:{
+                roles:{name:true}
+            }
+        })
 
         return plainToInstance(ResponseUserDto, users)
     }
@@ -51,6 +59,11 @@ export class UserService {
        const   hashedPassword=await hashPassword(updateUserDto.password)
        Object.assign(existingUser,{password:hashedPassword})   
     }
+    
+        if(updateUserDto.roles){
+            const assignedRoles=await this.roleService.getRolesByNames(updateUserDto.roles)
+            Object.assign(existingUser,{roles:assignedRoles})
+        }    
 
         const savedUser = await this.userRepository.save(existingUser)
 
@@ -77,7 +90,10 @@ export class UserService {
         }
 
         const hashedPassword = await hashPassword(createUserDto.password)
-        const newUser = this.userRepository.create({ ...createUserDto, password: hashedPassword })
+
+     const assignedRoles = await this.roleService.getRolesByNames(createUserDto.roles ?? ["Client"]);
+
+        const newUser = this.userRepository.create({ ...createUserDto, roles:assignedRoles,password: hashedPassword })
         const savedUser = this.userRepository.save(newUser)
         return plainToInstance(ResponseUserDto, savedUser)
 

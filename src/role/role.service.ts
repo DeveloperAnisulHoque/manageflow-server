@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { Role } from "./entity/role.entity";
 import { CreateRoleDto } from "./dto/create-role-dto";
 import { UpdateRoleDto } from "./dto/update-role-dto";
@@ -51,6 +51,14 @@ export class RoleService {
             throw new BadRequestException()
         }
         return this.roleRepository.remove(role);
+    }
+
+    async getRolesByNames(roleNames:string[]){
+        return this.roleRepository.find({
+            where:{
+                name:In(roleNames)
+            }
+        })
     }
 
 }
