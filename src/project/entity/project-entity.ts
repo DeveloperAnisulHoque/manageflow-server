@@ -1,5 +1,6 @@
+import { BaseEntity } from "@common/entity/base.entity";
 import { User } from "@user/entity/user.entity";
-import { BaseEntity, Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne } from "typeorm";
+import {  Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne } from "typeorm";
 
 
 @Entity({name:"projects"})
@@ -28,8 +29,8 @@ export class Project extends BaseEntity{
     @ManyToOne(()=>User,user=>user.createdProjects)
     @JoinColumn({name:"createdBy"})
     createdBy:User
-    
+
     @ManyToOne(()=>User,user=>user.updatedProjects)
-    @JoinColumn({name:"createdBy"})
+    @JoinColumn({name:"updatedBy"})
     updatedBy:User
 }
