@@ -27,7 +27,7 @@ async register(@Body() createUserDto:CreateUserDto){
 @Post("login")
 @HttpCode(HttpStatus.OK)
 @UseGuards(LocalAuthGuard)
-async login(@Request() req:any){
+async login(@Request() req:any){  
    return this.authService.login(req.user)
 }
 

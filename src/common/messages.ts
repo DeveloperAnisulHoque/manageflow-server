@@ -8,5 +8,8 @@ export const MESSAGES = {
   },
   AUTH_MESSAGES: {
     LOGIN_SUCCESS: "Login successful!",
-  }
+  },
+  PERMISSION_MESSAGES: {
+    UNAUTHORIZED: "You do not have permission to perform this action.",
+  },
 };

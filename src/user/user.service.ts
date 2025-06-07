@@ -14,22 +14,23 @@ import { RoleService } from "@role/role.service";
 @Injectable()
 export class UserService {
     constructor(@InjectRepository(User) private readonly userRepository: Repository<User>,
-  private readonly roleService:RoleService
-) {
-     
+        private readonly roleService: RoleService
+    ) {
+
     }
     async findUserByEmail(email: string) {
         return this.userRepository.findOne({
             where: {
-                email: email
-            }
+                email
+            }, relations: ["roles"], 
         })
     }
     async findUserById(id: number) {
         return this.userRepository.findOne({
             where: {
                 id: id
-            }
+            },
+             relations: ["roles"], 
         })
     }
 
@@ -39,9 +40,9 @@ export class UserService {
     }
     async findUsers(): Promise<ResponseUserDto[]> {
         const users = await this.userRepository.find({
-            relations:["roles"],
-            select:{
-                roles:{name:true}
+            relations: ["roles"],
+            select: {
+                roles: { name: true }
             }
         })
 
@@ -55,15 +56,15 @@ export class UserService {
         }
         Object.assign(existingUser, updateUserDto)
 
-        if(updateUserDto.password){
-       const   hashedPassword=await hashPassword(updateUserDto.password)
-       Object.assign(existingUser,{password:hashedPassword})   
-    }
-    
-        if(updateUserDto.roles){
-            const assignedRoles=await this.roleService.getRolesByNames(updateUserDto.roles)
-            Object.assign(existingUser,{roles:assignedRoles})
-        }    
+        if (updateUserDto.password) {
+            const hashedPassword = await hashPassword(updateUserDto.password)
+            Object.assign(existingUser, { password: hashedPassword })
+        }
+
+        if (updateUserDto.roles) {
+            const assignedRoles = await this.roleService.getRolesByNames(updateUserDto.roles)
+            Object.assign(existingUser, { roles: assignedRoles })
+        }
 
         const savedUser = await this.userRepository.save(existingUser)
 
@@ -72,12 +73,12 @@ export class UserService {
 
 
     async removeUser(userId: number) {
-        const result =await this.userRepository.delete(userId)
-        if(!result.affected){
+        const result = await this.userRepository.delete(userId)
+        if (!result.affected) {
             throw new BadRequestException(MESSAGES.USER_MESSAGES.NOT_FOUND)
         }
         return {
-            message:MESSAGES.USER_MESSAGES.DELETE_SUCCESS
+            message: MESSAGES.USER_MESSAGES.DELETE_SUCCESS
         }
 
     }
@@ -91,9 +92,9 @@ export class UserService {
 
         const hashedPassword = await hashPassword(createUserDto.password)
 
-     const assignedRoles = await this.roleService.getRolesByNames(createUserDto.roles ?? ["Client"]);
+        const assignedRoles = await this.roleService.getRolesByNames(createUserDto.roles ?? ["Client"]);
 
-        const newUser = this.userRepository.create({ ...createUserDto, roles:assignedRoles,password: hashedPassword })
+        const newUser = this.userRepository.create({ ...createUserDto, roles: assignedRoles, password: hashedPassword })
         const savedUser = this.userRepository.save(newUser)
         return plainToInstance(ResponseUserDto, savedUser)
 

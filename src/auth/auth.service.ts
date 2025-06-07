@@ -27,7 +27,8 @@ export class AuthService{
 async login(user:Partial<ResponseUserDto>){
 const accessToken=this.jwtService.sign({
     sub:user.id,
-    email:user.email
+    email:user.email,
+    roles:user.roles
 
 })
  
@@ -39,6 +40,7 @@ return{
 
 async validateUser(email:string,password:string){
     const user=await this.userService.findUserByEmail(email)
+     
     if(!user){
         throw new BadRequestException("User does not exist for the given email")
     }

@@ -1,3 +1,4 @@
+import { ResponseRoleDto } from "@role/dto/response-role-dto";
 import { Exclude } from "class-transformer";
 
 export class ResponseUserDto {
@@ -18,5 +19,6 @@ export class ResponseUserDto {
     dateOfBirth?: Date;
     createdAt: Date;
     updatedAt : Date;
+    roles:ResponseRoleDto[]
 
 }

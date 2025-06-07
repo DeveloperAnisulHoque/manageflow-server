@@ -1,6 +1,7 @@
+import { Project } from "@project/entity/project-entity";
 import { Role } from "@role/entity/role.entity";
 import { BaseEntity } from "src/common/entity/base.entity";
-import { Entity, Column, ManyToMany, JoinTable } from "typeorm";
+import { Entity, Column, ManyToMany, JoinTable, OneToMany } from "typeorm";
 
 @Entity({ name: "users" })
 export class User extends BaseEntity {
@@ -48,5 +49,16 @@ export class User extends BaseEntity {
         inverseJoinColumn:{name:"role_id",referencedColumnName:"id"}
     })
     roles:Role[]
+
+     @ManyToMany(()=>Project,project=>project.assignedUsers)   
+     assignedProjects:Project[]
+     
+     @OneToMany(()=>Project,project=>project.createdBy)   
+     createdProjects:Project[]
+     
+     @OneToMany(()=>Project,project=>project.updatedBy)   
+     updatedProjects:Project[]
+
+
 
 }
