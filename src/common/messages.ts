@@ -13,3 +13,14 @@ export const MESSAGES = {
     UNAUTHORIZED: "You do not have permission to perform this action.",
   },
 };
+
+
+export const PROJECT_MESSAGES = {
+  CREATE_SUCCESS: 'Project created successfully!',
+  CREATE_FAILED: 'Failed to create project.',
+  UPDATE_SUCCESS: 'Project updated successfully!',
+  DELETE_SUCCESS: 'Project deleted successfully!',
+  BAD_REQUEST: 'Invalid project data provided.',
+  NOT_FOUND: (id?: number) =>
+    id ? `Project with ID ${id} not found.` : 'Project not found.',
+};

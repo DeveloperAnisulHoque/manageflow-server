@@ -7,8 +7,14 @@ import { RoleModule } from './role/role.module';
 import { ProjectModule } from './project/project.module';
 import { TaskModule } from './task/task.module';
 import { ConfigModule } from '@nestjs/config';
+import roleSeedConfig from '@common/config/role-seed.config';
  
 @Module({
-  imports: [ConfigModule.forRoot(),AuthModule, DatabaseModule, CommonModule, UserModule, RoleModule, ProjectModule, TaskModule],
+  imports: [ConfigModule.forRoot({
+     isGlobal: true,
+      load: [roleSeedConfig],
+  }),AuthModule, DatabaseModule, CommonModule, UserModule, RoleModule, ProjectModule, TaskModule],
 })
 export class AppModule {}
+
+ 
