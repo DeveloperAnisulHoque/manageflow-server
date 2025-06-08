@@ -1,14 +1,19 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "@user/entity/user.entity";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 
 
 @Injectable()
-export class SharedUserService{
-    constructor(@InjectRepository(User) private readonly userRepository:Repository<User>){}
+export class SharedUserService {
+    constructor(@InjectRepository(User) private readonly userRepository: Repository<User>) { }
 
-    async getUserById(id:number){
-        return this.userRepository.findOneByOrFail({id})
+    async getUserById(id: number) {
+        return this.userRepository.findOneByOrFail({ id })
     }
+
+    async getUsersByIds(ids: number[]): Promise<User[]> {
+        return this.userRepository.findBy({ id: In(ids) });
+    }
+
 }

@@ -8,12 +8,13 @@ import { ProjectModule } from './project/project.module';
 import { TaskModule } from './task/task.module';
 import { ConfigModule } from '@nestjs/config';
 import roleSeedConfig from '@common/config/role-seed.config';
+import { HealthModule } from './health/health.module';
  
 @Module({
   imports: [ConfigModule.forRoot({
      isGlobal: true,
       load: [roleSeedConfig],
-  }),AuthModule, DatabaseModule, CommonModule, UserModule, RoleModule, ProjectModule, TaskModule],
+  }),AuthModule, DatabaseModule, CommonModule, UserModule, RoleModule, ProjectModule, TaskModule,HealthModule],
 })
 export class AppModule {}
 

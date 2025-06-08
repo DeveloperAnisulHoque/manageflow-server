@@ -6,32 +6,56 @@ import { CreateProjectDto } from './dto/create-project-dto';
 import { UpdateProjectDto } from './dto/update-project-dto';
 import { PROJECT_MESSAGES } from '@common/messages';
 import { SharedUserService } from '@common/service/shared-user-service';
- 
+
 @Injectable()
 export class ProjectService {
   constructor(
     @InjectRepository(Project)
     private readonly projectRepository: Repository<Project>,
-    private readonly userService:SharedUserService
-  ) {}
+    private readonly userService: SharedUserService
+  ) { }
+
+
+  private projectRelationOptions = {
+    relations: ["assignedUsers", "createdBy", "updatedBy"], select: {
+      assignedUsers: {
+        id: true,
+        name: true,
+        email: true,
+        profilePicture: true
+      },
+      createdBy: {
+        id: true,
+        name: true,
+        email: true,
+        profilePicture: true
+      },
+      updatedBy: {
+        id: true,
+        name: true,
+        email: true,
+        profilePicture: true
+      },
+    }
+  }
 
   // Get all projects
   async getProjects(): Promise<Project[]> {
-    return this.projectRepository.find({relations: ["assignedUsers","createdBy"], });
+    return this.projectRepository.find(this.projectRelationOptions);
   }
 
   // Get project by ID
   async getProjectById(projectId: number): Promise<Project> {
     try {
       return await this.projectRepository.findOneOrFail({
-        where: { id: projectId },
+        where: { id: projectId }, ...this.projectRelationOptions
       });
     } catch {
       throw new NotFoundException(PROJECT_MESSAGES.NOT_FOUND(projectId));
     }
   }
 
- // Create a new project
+  // Create a new project
   async createProject(
     createProjectDto: CreateProjectDto,
     currentUserId: number,
@@ -44,8 +68,8 @@ export class ProjectService {
     if (!user) {
       throw new BadRequestException('Invalid user ID.');
     }
-   console.log(user);
-   
+    console.log(user);
+
     const newProject = this.projectRepository.create({
       ...createProjectDto,
       createdBy: user,
@@ -84,4 +108,25 @@ export class ProjectService {
 
     return { message: PROJECT_MESSAGES.DELETE_SUCCESS };
   }
+
+  async assignUsersToProject(projectId: number, userIds: number[]): Promise<Project> {
+    const project = await this.projectRepository.findOne({
+      where: { id: projectId },
+      relations: ['assignedUsers'],
+    });
+
+    if (!project) {
+      throw new NotFoundException(PROJECT_MESSAGES.NOT_FOUND(projectId));
+    }
+
+    const users = await this.userService.getUsersByIds(userIds);
+    if (!users.length) {
+      throw new BadRequestException('No valid users found to assign.');
+    }
+
+    project.assignedUsers = Array.from(new Set([...project.assignedUsers, ...users]));
+
+    return await this.projectRepository.save(project);
+  }
+
 }

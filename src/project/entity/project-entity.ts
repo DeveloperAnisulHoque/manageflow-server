@@ -1,4 +1,5 @@
 import { BaseEntity } from "@common/entity/base.entity";
+import { ProjestStatus } from "@project/enum/project-status-enum";
 import { User } from "@user/entity/user.entity";
 import {  Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne } from "typeorm";
 
@@ -12,7 +13,7 @@ export class Project extends BaseEntity{
     @Column('text')
     description:string;
 
-    @Column({default:"Not Started"})
+    @Column({default:ProjestStatus.NotStarted})
     status:string // Status of the project e.g. "Not Started" , "In Progress" , "Completed"
 
     @Column({default:0})
