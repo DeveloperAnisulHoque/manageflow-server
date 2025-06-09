@@ -5,7 +5,7 @@ import { Project } from './entity/project-entity';
 import { CreateProjectDto } from './dto/create-project-dto';
 import { UpdateProjectDto } from './dto/update-project-dto';
 import { PROJECT_MESSAGES } from '@common/messages';
-import { SharedUserService } from '@common/service/shared-user-service';
+import { SharedUserService } from '@common/service/shared-user.service';
 
 @Injectable()
 export class ProjectService {

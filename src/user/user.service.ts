@@ -30,7 +30,7 @@ export class UserService {
             where: {
                 id: id
             },
-             relations: ["roles"], 
+             relations: ["roles","assignedProjects"], 
         })
     }
 
