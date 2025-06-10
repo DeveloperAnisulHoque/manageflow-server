@@ -10,11 +10,12 @@ import { LocalStrategy } from './strategy/loacal.strategy';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { LocalAuthGuard } from './guard/local-auth.guard';
 import { JwtAuthGuard } from './guard/jwt-auth.guard copy';
+import { EmailModule } from 'src/email/email.module';
 
 @Module({
     imports:[
         ConfigModule.forFeature(authConfig),
-        PassportModule,
+        PassportModule,EmailModule,
         JwtModule.registerAsync({
             imports:[ConfigModule.forFeature(authConfig)],
             useFactory:async (configService:ConfigService)=>({
