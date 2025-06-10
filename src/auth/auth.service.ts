@@ -7,7 +7,7 @@ import { ResponseUserDto } from "@user/dto/response-user.dto";
 import { plainToInstance } from "class-transformer";
 import { UpdateUserDto } from "@user/dto/update-user.dto";
 import { EmailService } from "src/email/email.service";
-
+ 
 
 @Injectable()
 export class AuthService {
@@ -16,23 +16,24 @@ export class AuthService {
     constructor(
         private readonly userService: UserService,
         private readonly emailService: EmailService,
-        private readonly jwtService: JwtService
-
+        private readonly jwtService: JwtService,
+ 
     ) {
 
     }
 
-    async register(createUserDto: CreateUserDto) {
+  async register(createUserDto: CreateUserDto) {
+    
+  // Send welcome email
+  this.emailService
+    .sendWelcomeEmail(createUserDto.email ?? '', createUserDto.name ?? '')
+    .catch((error) => {
+      console.error('Failed to send welcome email:', error);
+    });
 
-        // Send welcome email  
-        this.emailService
-            .sendWelcomeEmail(createUserDto.email ?? '', createUserDto.name ?? '')
-            .catch((error) => {
-                console.error('Failed to send welcome email:', error);
-            });
+  return this.userService.createUser(createUserDto);
+}
 
-        return this.userService.createUser(createUserDto)
-    }
 
     async login(user: Partial<ResponseUserDto>) {
         const accessToken = this.jwtService.sign({

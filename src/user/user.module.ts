@@ -5,9 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entity/user.entity';
 import { AuthModule } from '@auth/auth.module';
 import { RoleModule } from '@role/role.module';
+import { FileStorageModule } from 'src/file-storage/file-storage.module';
 
 @Module({
-    imports: [RoleModule,forwardRef(()=>AuthModule),TypeOrmModule.forFeature([User])],
+    imports: [RoleModule,forwardRef(()=>AuthModule),TypeOrmModule.forFeature([User]),FileStorageModule],
     controllers: [UserController],
     providers: [UserService],
     exports: [UserService]

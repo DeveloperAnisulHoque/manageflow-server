@@ -1,21 +1,22 @@
 import { ValidIdPipe } from 'src/common/pipe/valid-id-pipe';
 import { UserService } from './user.service';
-import { Body, Controller, Delete, Get, Param, Patch } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Request, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { UpdateUserDto } from './dto/update-user.dto';
- import { Private } from '@common/decorator/private.decorator';
+import { Private } from '@common/decorator/private.decorator';
 import { Permissions } from '@role/decorator/permissions.decorator';
 import { Permission } from '@role/enum/permission.enum';
- 
+import { FileInterceptor } from '@nestjs/platform-express';
+
 @Controller("users")
 @Private()
- export class UserController {
+export class UserController {
    constructor(
       private readonly userService: UserService
    ) { }
 
    @Get()
    @Permissions(Permission.ViewUsers)
-    async getUsers() {
+   async getUsers() {
       return this.userService.findUsers()
    }
 
@@ -36,6 +37,17 @@ import { Permission } from '@role/enum/permission.enum';
    async removeUser(@Param("userId", ValidIdPipe) userId: number) {
       return this.userService.removeUser(userId)
 
+   }
+
+   @Patch('profile-picture')
+   @Permissions(Permission.UpdateProfile)
+   @UseInterceptors(FileInterceptor('file'))
+   async updateProfilePicture(
+      // @Param('userId', ValidIdPipe) userId: number,
+      @UploadedFile() file: Express.Multer.File,@Request() req: any
+   ) {
+      
+      return this.userService.updateUserProfilePicture(req?.user?.id, file);
    }
 
 

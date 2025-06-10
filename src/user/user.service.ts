@@ -9,12 +9,15 @@ import { plainToInstance } from "class-transformer";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { MESSAGES } from "@common/messages";
 import { RoleService } from "@role/role.service";
+import { FileStorageService } from "src/file-storage/file-storage.service";
 
 
 @Injectable()
 export class UserService {
     constructor(@InjectRepository(User) private readonly userRepository: Repository<User>,
-        private readonly roleService: RoleService
+        private readonly roleService: RoleService,
+                private readonly fileStorageService: FileStorageService
+        
     ) {
 
     }
@@ -99,6 +102,30 @@ export class UserService {
         return plainToInstance(ResponseUserDto, savedUser)
 
     }
+
+
+    async updateUserProfilePicture(userId: number, file: Express.Multer.File): Promise<ResponseUserDto> {
+  const user = await this.findUserById(userId);
+  if (!user) {
+    throw new BadRequestException(MESSAGES.USER_MESSAGES.NOT_FOUND(userId));
+  }
+  
+   
+  // Delete previous image if exists
+  if (user.profilePicture) {
+    await this.fileStorageService.delete(user.profilePicture).catch(err => {
+      console.warn("Failed to delete previous image:", err.message);
+    });
+  }
+
+  // Upload new image
+  const uploadResult = await this.fileStorageService.upload(file);
+
+  // Update user entity
+  user.profilePicture = uploadResult.url;
+  const savedUser = await this.userRepository.save(user);
+  return plainToInstance(ResponseUserDto, savedUser);
+}
 
 
 }
