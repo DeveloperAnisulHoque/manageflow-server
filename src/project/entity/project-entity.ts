@@ -1,7 +1,8 @@
 import { BaseEntity } from "@common/entity/base.entity";
 import { ProjestStatus } from "@project/enum/project-status-enum";
+import { Task } from "@task/entity/task-entity";
 import { User } from "@user/entity/user.entity";
-import {  Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne } from "typeorm";
+import {  Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany } from "typeorm";
 
 
 @Entity({name:"projects"})
@@ -34,4 +35,8 @@ export class Project extends BaseEntity{
     @ManyToOne(()=>User,user=>user.updatedProjects)
     @JoinColumn({name:"updatedBy"})
     updatedBy:User
+
+    @OneToMany(() => Task, task => task.project)
+    tasks: Task[];
+
 }

@@ -6,28 +6,28 @@ import { UpdateRoleDto } from "./dto/update-role-dto";
 
 
 @Controller("roles")
-export class RoleController{
+export class RoleController {
 
-     constructor(private readonly roleService:RoleService){}
+   constructor(private readonly roleService: RoleService) { }
 
 
-     @Get()
-     async getRoles(){
-        return this.roleService.getRoles()
-     }
-     
-     @Post()
-     async createRole(@Body() createRoleDto:CreateRoleDto){
-        return this.roleService.createRoles(createRoleDto)
-     }
-    
-     @Patch(':roleId')
-     async updateRole(@Param("roleId",ValidIdPipe) roleId:number,@Body() updateRoleDto:UpdateRoleDto){
-        return this.roleService.updateRoles(roleId,updateRoleDto)
-     }
+   @Get()
+   async getRoles() {
+      return this.roleService.getRoles()
+   }
 
-     @Delete(":roleId")
-     async removeRole(@Param("roleId",ValidIdPipe) roleId:number){
-        return this.roleService.deleteRoles(roleId)
-     }
-    }
+   @Post()
+   async createRole(@Body() createRoleDto: CreateRoleDto) {
+      return this.roleService.createRoles(createRoleDto)
+   }
+
+   @Patch(':roleId')
+   async updateRole(@Param("roleId", ValidIdPipe) roleId: number, @Body() updateRoleDto: UpdateRoleDto) {
+      return this.roleService.updateRoles(roleId, updateRoleDto)
+   }
+
+   @Delete(":roleId")
+   async removeRole(@Param("roleId", ValidIdPipe) roleId: number) {
+      return this.roleService.deleteRoles(roleId)
+   }
+}

@@ -1,5 +1,6 @@
 import { Project } from "@project/entity/project-entity";
 import { Role } from "@role/entity/role.entity";
+import { Task } from "@task/entity/task-entity";
 import { BaseEntity } from "src/common/entity/base.entity";
 import { Entity, Column, ManyToMany, JoinTable, OneToMany } from "typeorm";
 
@@ -58,6 +59,15 @@ export class User extends BaseEntity {
      
      @OneToMany(()=>Project,project=>project.updatedBy)   
      updatedProjects:Project[]
+
+     @OneToMany(()=>Task,task=>task.assignedUsers)   
+     assignedTasks:Task[]
+
+     @OneToMany(()=>Task,task=>task.createdBy)   
+     createdTasks:Task[]
+     
+     @OneToMany(()=>Task,task=>task.updatedBy)   
+     updatedTasks:Task[]
 
 
 

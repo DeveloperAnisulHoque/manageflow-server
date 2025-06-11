@@ -10,6 +10,11 @@ export enum Permission{
     CreateProject="create_project",
     UpdateProject="update_project",
     RemoveProject="remove_project",
+    ViewTask="view_task",
+    ViewTasks="view_tasks",
+    CreateTask="create_task",
+    UpdateTask="update_task",
+    RemoveTask="remove_task",
     SuperOwner="super_owner"
 
 }

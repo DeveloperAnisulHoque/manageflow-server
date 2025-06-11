@@ -1,8 +1,8 @@
 import { Permission } from "./enum/permission.enum";
 import { Role } from "./enum/role.enum";
 
-export const RolePermissions={
-    [Role.Admin]:[
+export const RolePermissions = {
+    [Role.Admin]: [
         Permission.ViewProfile,
         Permission.UpdateProfile,
         Permission.ViewUser,
@@ -15,32 +15,48 @@ export const RolePermissions={
         Permission.UpdateProject,
         Permission.RemoveProject,
         Permission.SuperOwner,
+        Permission.CreateTask,
+        Permission.ViewTask,
+        Permission.ViewTasks,
+        Permission.RemoveTask,
+        Permission.UpdateTask,
     ],
-    [Role.Client]:[
+    [Role.Client]: [
         Permission.ViewProfile,
         Permission.UpdateProfile,
         Permission.ViewProject,
+        Permission.ViewTasks,
+
     ],
-    [Role.Member]:[
+    [Role.Member]: [
         Permission.ViewProfile,
         Permission.UpdateProfile,
         Permission.ViewUser,
         Permission.ViewUsers,
         // Permission.ViewProject,
+        Permission.ViewTasks,
+        Permission.UpdateTask,
     ],
-    [Role.ProjectManager]:[
+    [Role.ProjectManager]: [
         Permission.ViewProfile,
         Permission.UpdateProfile,
         Permission.ViewUser,
         Permission.ViewUsers,
         Permission.ViewProject,
         Permission.UpdateUser,
+        Permission.CreateTask,
+        Permission.ViewTasks,
+        Permission.UpdateTask,
+        Permission.RemoveTask,
     ],
-    [Role.TeamLead]:[
+    [Role.TeamLead]: [
         Permission.ViewProfile,
         Permission.UpdateProfile,
         Permission.ViewUser,
         Permission.ViewUsers,
         Permission.ViewProject,
+        Permission.CreateTask,
+        Permission.ViewTasks,
+        Permission.UpdateTask,
     ],
 }

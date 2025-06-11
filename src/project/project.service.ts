@@ -17,7 +17,7 @@ export class ProjectService {
 
 
   private projectRelationOptions = {
-    relations: ["assignedUsers", "createdBy", "updatedBy"], select: {
+    relations: ["assignedUsers", "createdBy", "updatedBy","tasks"], select: {
       assignedUsers: {
         id: true,
         name: true,
