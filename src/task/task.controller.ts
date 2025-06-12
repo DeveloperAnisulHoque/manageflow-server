@@ -78,7 +78,8 @@ export class TaskController {
      */
     @Delete(':id')
     @Permissions(Permission.RemoveTask)
-    async deleteTask(@Param('id') id: string) {
-        return this.taskService.deleteTask(id);
+    async deleteTask(@Param('id',ValidIdPipe) id: number) {
+     await this.taskService.deleteTask(id);
+     return { message: `Task ${id} deleted successfully` }; 
     }
 }
