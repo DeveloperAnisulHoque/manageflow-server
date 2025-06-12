@@ -7,17 +7,25 @@ import { UpdateProjectDto } from './dto/update-project-dto';
 import { PROJECT_MESSAGES } from '@common/messages';
 import { SharedUserService } from '@common/service/shared-user.service';
 
+/**
+ * ProjectService handles all business logic related to project management
+ * including CRUD operations, user assignments, and project relationships.
+ */
 @Injectable()
 export class ProjectService {
   constructor(
     @InjectRepository(Project)
     private readonly projectRepository: Repository<Project>,
     private readonly userService: SharedUserService
-  ) { }
+  ) {}
 
-
+  /**
+   * Configuration for project entity relations and field selection
+   * Optimizes queries by loading only necessary user data
+   */
   private projectRelationOptions = {
-    relations: ["assignedUsers", "createdBy", "updatedBy","tasks"], select: {
+    relations: ["assignedUsers", "createdBy", "updatedBy", "tasks"],
+    select: {
       assignedUsers: {
         id: true,
         name: true,
@@ -39,23 +47,38 @@ export class ProjectService {
     }
   }
 
-  // Get all projects
+  /**
+   * Retrieves all projects with their related entities
+   * @returns Promise<Project[]> - Array of projects with populated relations
+   */
   async getProjects(): Promise<Project[]> {
     return this.projectRepository.find(this.projectRelationOptions);
   }
 
-  // Get project by ID
+  /**
+   * Finds a single project by ID with all related entities
+   * @param projectId - ID of the project to retrieve
+   * @returns Promise<Project> - The requested project
+   * @throws NotFoundException if project doesn't exist
+   */
   async getProjectById(projectId: number): Promise<Project> {
     try {
       return await this.projectRepository.findOneOrFail({
-        where: { id: projectId }, ...this.projectRelationOptions
+        where: { id: projectId },
+        ...this.projectRelationOptions
       });
     } catch {
       throw new NotFoundException(PROJECT_MESSAGES.NOT_FOUND(projectId));
     }
   }
 
-  // Create a new project
+  /**
+   * Creates a new project and assigns the creator as the first team member
+   * @param createProjectDto - Data for the new project
+   * @param currentUserId - ID of the user creating the project
+   * @returns Promise<{ message: string }> - Success message
+   * @throws BadRequestException for invalid data or user
+   */
   async createProject(
     createProjectDto: CreateProjectDto,
     currentUserId: number,
@@ -68,12 +91,11 @@ export class ProjectService {
     if (!user) {
       throw new BadRequestException('Invalid user ID.');
     }
-    console.log(user);
 
     const newProject = this.projectRepository.create({
       ...createProjectDto,
       createdBy: user,
-      assignedUsers: [user],
+      assignedUsers: [user], // Automatically assign creator to project
     });
 
     const savedProject = await this.projectRepository.save(newProject);
@@ -85,8 +107,17 @@ export class ProjectService {
     throw new BadRequestException(PROJECT_MESSAGES.CREATE_FAILED);
   }
 
-  // Update project
-  async updateProject(projectId: number, updateProjectDto: UpdateProjectDto): Promise<{ message: string }> {
+  /**
+   * Updates an existing project's properties
+   * @param projectId - ID of the project to update
+   * @param updateProjectDto - Data to update
+   * @returns Promise<{ message: string }> - Success message
+   * @throws NotFoundException if project doesn't exist
+   */
+  async updateProject(
+    projectId: number,
+    updateProjectDto: UpdateProjectDto
+  ): Promise<{ message: string }> {
     const project = await this.projectRepository.findOne({ where: { id: projectId } });
 
     if (!project) {
@@ -94,11 +125,15 @@ export class ProjectService {
     }
 
     await this.projectRepository.update(projectId, updateProjectDto);
-
     return { message: PROJECT_MESSAGES.UPDATE_SUCCESS };
   }
 
-  // Delete project
+  /**
+   * Deletes a project permanently
+   * @param projectId - ID of the project to delete
+   * @returns Promise<{ message: string }> - Success message
+   * @throws NotFoundException if project doesn't exist
+   */
   async deleteProject(projectId: number): Promise<{ message: string }> {
     const result = await this.projectRepository.delete(projectId);
 
@@ -109,7 +144,18 @@ export class ProjectService {
     return { message: PROJECT_MESSAGES.DELETE_SUCCESS };
   }
 
-  async assignUsersToProject(projectId: number, userIds: number[]): Promise<Project> {
+  /**
+   * Assigns users to a project while preventing duplicates
+   * @param projectId - ID of the project to assign users to
+   * @param userIds - Array of user IDs to assign
+   * @returns Promise<Project> - Updated project with assigned users
+   * @throws NotFoundException if project doesn't exist
+   * @throws BadRequestException if no valid users found
+   */
+  async assignUsersToProject(
+    projectId: number,
+    userIds: number[]
+  ): Promise<Project> {
     const project = await this.projectRepository.findOne({
       where: { id: projectId },
       relations: ['assignedUsers'],
@@ -124,9 +170,11 @@ export class ProjectService {
       throw new BadRequestException('No valid users found to assign.');
     }
 
-    project.assignedUsers = Array.from(new Set([...project.assignedUsers, ...users]));
+    // Use Set to ensure unique users only
+    project.assignedUsers = Array.from(
+      new Set([...project.assignedUsers, ...users])
+    );
 
     return await this.projectRepository.save(project);
   }
-
 }

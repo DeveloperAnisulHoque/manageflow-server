@@ -11,6 +11,10 @@ import { MESSAGES } from "@common/messages";
 import { RoleService } from "@role/role.service";
 import { FileStorageService } from "src/file-storage/file-storage.service";
 
+/**
+ * UserService handles all business logic related to user management
+ * including user creation, authentication, profile management, and role assignment.
+ */
 @Injectable()
 export class UserService {
   constructor(
@@ -21,9 +25,11 @@ export class UserService {
   ) {}
 
   /**
-   * Finds a user by their email address.
+   * Finds a user by their email address including their roles
+   * @param email - The email address to search for
+   * @returns Promise<User | null> - The user entity if found, null otherwise
    */
-  async findUserByEmail(email: string) {
+  async findUserByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOne({
       where: { email },
       relations: ["roles"],
@@ -31,9 +37,11 @@ export class UserService {
   }
 
   /**
-   * Finds a user by their ID, including related roles and assigned projects.
+   * Finds a user by their ID including their roles and assigned projects
+   * @param id - The user ID to search for
+   * @returns Promise<User | null> - The user entity if found, null otherwise
    */
-  async findUserById(id: number) {
+  async findUserById(id: number): Promise<User | null> {
     return this.userRepository.findOne({
       where: { id },
       relations: ["roles", "assignedProjects"],
@@ -41,7 +49,9 @@ export class UserService {
   }
 
   /**
-   * Returns a user by ID, transformed into a response DTO.
+   * Retrieves a user by ID and transforms it into a response DTO
+   * @param userId - The ID of the user to retrieve
+   * @returns Promise<ResponseUserDto> - The user data in response DTO format
    */
   async findUser(userId: number): Promise<ResponseUserDto> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
@@ -49,7 +59,8 @@ export class UserService {
   }
 
   /**
-   * Returns all users along with their role names.
+   * Retrieves all users with their role names
+   * @returns Promise<ResponseUserDto[]> - Array of users in response DTO format
    */
   async findUsers(): Promise<ResponseUserDto[]> {
     const users = await this.userRepository.find({
@@ -63,7 +74,11 @@ export class UserService {
   }
 
   /**
-   * Updates user information such as name, email, password, and roles.
+   * Updates user information including password and roles
+   * @param userId - The ID of the user to update
+   * @param updateUserDto - The data to update
+   * @returns Promise<ResponseUserDto> - The updated user in response DTO format
+   * @throws BadRequestException if user is not found
    */
   async updateUser(userId: number, updateUserDto: UpdateUserDto): Promise<ResponseUserDto> {
     const existingUser = await this.findUserById(userId);
@@ -74,13 +89,11 @@ export class UserService {
     Object.assign(existingUser, updateUserDto);
 
     if (updateUserDto.password) {
-      const hashedPassword = await hashPassword(updateUserDto.password);
-      existingUser.password = hashedPassword;
+      existingUser.password = await hashPassword(updateUserDto.password);
     }
 
     if (updateUserDto.roles) {
-      const assignedRoles = await this.roleService.getRolesByNames(updateUserDto.roles);
-      existingUser.roles = assignedRoles;
+      existingUser.roles = await this.roleService.getRolesByNames(updateUserDto.roles);
     }
 
     const savedUser = await this.userRepository.save(existingUser);
@@ -88,9 +101,12 @@ export class UserService {
   }
 
   /**
-   * Deletes a user by their ID.
+   * Deletes a user by their ID
+   * @param userId - The ID of the user to delete
+   * @returns Promise<{ message: string }> - Success message
+   * @throws BadRequestException if user is not found
    */
-  async removeUser(userId: number) {
+  async removeUser(userId: number): Promise<{ message: string }> {
     const result = await this.userRepository.delete(userId);
     if (!result.affected) {
       throw new BadRequestException(MESSAGES.USER_MESSAGES.NOT_FOUND);
@@ -102,7 +118,10 @@ export class UserService {
   }
 
   /**
-   * Creates a new user with hashed password and assigned roles.
+   * Creates a new user with hashed password and default 'Client' role if none specified
+   * @param createUserDto - The user data to create
+   * @returns Promise<ResponseUserDto> - The created user in response DTO format
+   * @throws BadRequestException if email already exists
    */
   async createUser(createUserDto: CreateUserDto): Promise<ResponseUserDto> {
     const existingUser = await this.findUserByEmail(createUserDto.email);
@@ -111,7 +130,9 @@ export class UserService {
     }
 
     const hashedPassword = await hashPassword(createUserDto.password);
-    const assignedRoles = await this.roleService.getRolesByNames(createUserDto.roles ?? ["Client"]);
+    const assignedRoles = await this.roleService.getRolesByNames(
+      createUserDto.roles ?? ["Client"] // Default to 'Client' role if none specified
+    );
 
     const newUser = this.userRepository.create({
       ...createUserDto,
@@ -124,9 +145,11 @@ export class UserService {
   }
 
   /**
-   * Updates a user's profile picture.
-   * Deletes the previous image if it exists, uploads the new image,
-   * and updates the user's profile picture URL.
+   * Updates a user's profile picture
+   * @param userId - The ID of the user to update
+   * @param file - The new profile picture file
+   * @returns Promise<ResponseUserDto> - The updated user in response DTO format
+   * @throws BadRequestException if user is not found
    */
   async updateUserProfilePicture(userId: number, file: Express.Multer.File): Promise<ResponseUserDto> {
     const user = await this.findUserById(userId);
@@ -134,18 +157,17 @@ export class UserService {
       throw new BadRequestException(MESSAGES.USER_MESSAGES.NOT_FOUND(userId));
     }
 
-    // Delete previous image if exists
+    // Clean up previous image if exists
     if (user.profilePicture) {
       await this.fileStorageService.delete(user.profilePicture).catch(err => {
         console.warn("Failed to delete previous image:", err.message);
       });
     }
 
-    // Upload new image
+    // Upload and update with new image
     const uploadResult = await this.fileStorageService.upload(file);
-
-    // Update profile picture URL
     user.profilePicture = uploadResult.url;
+    
     const savedUser = await this.userRepository.save(user);
     return plainToInstance(ResponseUserDto, savedUser);
   }
