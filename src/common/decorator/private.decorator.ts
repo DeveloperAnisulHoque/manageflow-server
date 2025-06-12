@@ -1,4 +1,4 @@
-import { JwtAuthGuard } from "@auth/guard/jwt-auth.guard copy";
+ import { JwtAuthGuard } from "@auth/guard/jwt-auth.guard";
 import { UseGuards } from "@nestjs/common";
 import { PermissionGuard } from "@role/guard/permission.guard";
 

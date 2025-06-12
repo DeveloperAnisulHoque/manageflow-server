@@ -7,6 +7,7 @@ import { ResponseUserDto } from "@user/dto/response-user.dto";
 import { plainToInstance } from "class-transformer";
 import { UpdateUserDto } from "@user/dto/update-user.dto";
 import { EmailService } from "src/email/email.service";
+import { ConfigService } from "@nestjs/config";
 
 /**
  * AuthService handles all authentication and authorization logic including:
@@ -21,7 +22,9 @@ export class AuthService {
         private readonly userService: UserService,
         private readonly emailService: EmailService,
         private readonly jwtService: JwtService,
-    ) {}
+        private readonly configService: ConfigService,
+
+    ) { }
 
     /**
      * Registers a new user in the system
@@ -46,16 +49,61 @@ export class AuthService {
      * @returns Object containing the access token
      */
     async login(user: Partial<ResponseUserDto>) {
-        const accessToken = this.jwtService.sign({
-            sub: user.id,        // Subject (user ID)
-            email: user.email,   // User email
-            roles: user.roles,   // User roles for authorization
+        const payload = {
+            sub: user.id,
+            email: user.email,
+            roles: user.roles,
+        };
+
+        const accessToken = this.jwtService.sign(payload, {
+            secret: this.configService.get('auth.jwtSecret'),
+            expiresIn: this.configService.get('auth.jwtExpiration'),
+        });
+
+        const refreshToken = this.jwtService.sign(payload, {
+            secret: this.configService.get('auth.refreshJwtSecret'),
+            expiresIn: this.configService.get('auth.refreshJwtExpiration'),
         });
 
         return {
             access_token: accessToken,
+            refresh_token: refreshToken,
         };
     }
+
+    /**
+     * Issues a new access token using a valid refresh token.
+     *
+     * @param refreshToken The JWT refresh token from the client
+     * @returns An object containing the new access token
+     * @throws UnauthorizedException if the refresh token is invalid or expired
+     */
+    async refreshAccessToken(refreshToken: string) {
+        try {
+            // Verify and decode the refresh token
+            const payload = this.jwtService.verify(refreshToken, {
+                secret: this.configService.get('auth.refreshJwtSecret'),
+            });
+
+            // Generate a new access token using the decoded payload
+            const newAccessToken = this.jwtService.sign(
+                {
+                    sub: payload.sub,
+                    email: payload.email,
+                    roles: payload.roles,
+                },
+                {
+                    secret: this.configService.get('auth.jwtSecret'),
+                    expiresIn: this.configService.get('auth.jwtExpiration'),
+                },
+            );
+
+            return { access_token: newAccessToken };
+        } catch (error) {
+            throw new UnauthorizedException('Invalid or expired refresh token');
+        }
+    }
+
 
     /**
      * Validates user credentials against stored data
