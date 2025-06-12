@@ -20,6 +20,11 @@ export const RolePermissions = {
         Permission.ViewTasks,
         Permission.RemoveTask,
         Permission.UpdateTask,
+        Permission.CreateRole,
+        Permission.ViewRole,
+        Permission.ViewRoles,
+        Permission.RemoveRole,
+        Permission.UpdateRole,
     ],
     [Role.Client]: [
         Permission.ViewProfile,

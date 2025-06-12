@@ -15,6 +15,11 @@ export enum Permission{
     CreateTask="create_task",
     UpdateTask="update_task",
     RemoveTask="remove_task",
+    ViewRole="view_role",
+    ViewRoles="view_roles",
+    CreateRole="create_role",
+    UpdateRole="update_role",
+    RemoveRole="remove_role",
     SuperOwner="super_owner"
 
 }
