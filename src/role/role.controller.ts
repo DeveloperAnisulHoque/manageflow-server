@@ -6,9 +6,7 @@ import { UpdateRoleDto } from "./dto/update-role-dto";
 import { Private } from "@common/decorator/private.decorator";
 import { Permissions } from "./decorator/permissions.decorator";
 import { Permission } from "./enum/permission.enum";
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Role } from './entity/role.entity';
-
+ 
 /**
  * RoleController handles all HTTP requests related to role management.
  * 
@@ -16,8 +14,6 @@ import { Role } from './entity/role.entity';
  * @ApiBearerAuth() - Indicates these endpoints require Bearer token authentication
  * @Private() - Requires authentication for all endpoints
  */
-@ApiTags('Roles')
-@ApiBearerAuth()
 @Controller("roles")
 @Private()
 export class RoleController {
